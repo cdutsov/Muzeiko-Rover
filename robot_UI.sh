@@ -17,38 +17,34 @@ STOP_TURNING_RIGHT_CMD="s"
 STOP_CMD="s"
 
 function echolog(){
-echo "@$(date +%s.%N)   $1"
+  echo "@$(date +%s.%N)   $1"
 }
 
 function dev_send(){
-sleep .33
-echo $1>$DEVICE
+  sleep .33
+  echo $1>$DEVICE
 }
 
-CYCLE=1
-
-
 function KILLFUNC(){
-CYCLE=0;
-echolog "Sig ^C caught"
-echolog "PS: Do not forget to switch the batteries off :)"
-echolog "Bye Bye"
-echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
-echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
-exit
+  CYCLE=0;
+  echolog "Sig ^C caught"
+  echolog "PS: Do not forget to switch the batteries off :)"
+  echolog "Bye Bye"
+  echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
+  echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
+  exit
 }
 
 trap KILLFUNC SIGINT
 
-
 EOC_i=1;
+CYCLE=1
 for ((;CYCLE==1;));
 do
   cmd=""
   read -t .55 -sn1 cmd &&{
     EOC_i=0;
     [ x"$cmd" != x"$cmdold" ] && {
-      #echo was "$cmdold" now "$cmd"
       case $cmd in
         w) echolog forward;  dev_send $START_FORWARD_CMD      ;;
         s) echolog backword; dev_send $START_BACKWORD_CMD     ;;
@@ -61,8 +57,6 @@ do
   }||{
     cmd="";
     ((!((EOC_i++)%10)))&&{
-      #echo end of command $cmdold;
-      sleep .33
       case $cmdold in
         w) echolog stop forward ; dev_send $STOP_FORWARD_CMD      ;;
         s) echolog stop backword; dev_send $STOP_BACKWORD_CMD     ;;
@@ -70,7 +64,7 @@ do
         d) echolog stop right   ; dev_send $STOP_TURNING_RIGHT_CMD;;
         *) echolog stop;;
       esac
-      cmdold=""
-      }
+    cmdold=""
+    }
   }
 done
