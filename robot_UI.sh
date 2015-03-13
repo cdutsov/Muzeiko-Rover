@@ -14,36 +14,61 @@ STOP_FORWARD_CMD="s"
 STOP_BACKWORD_CMD="s"
 STOP_TURNING_LEFT_CMD="s"
 STOP_TURNING_RIGHT_CMD="s"
+STOP_CMD="s"
 
+function echolog(){
+echo "@$(date +%s.%N)   $1"
+}
+
+function dev_send(){
+sleep .33
+echo $1>$DEVICE
+}
+
+CYCLE=1
+
+
+function KILLFUNC(){
+CYCLE=0;
+echolog "Sig ^C caught"
+echolog "PS: Do not forget to switch the batteries off :)"
+echolog "Bye Bye"
+echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
+echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
+exit
+}
+
+trap KILLFUNC SIGINT
 
 
 EOC_i=1;
-for ((;;));
+for ((;CYCLE==1;));
 do
   cmd=""
-  read -t 1 -sn1 cmd &&{
+  read -t .55 -sn1 cmd &&{
     EOC_i=0;
     [ x"$cmd" != x"$cmdold" ] && {
       #echo was "$cmdold" now "$cmd"
       case $cmd in
-        w) echo forward;  echo $START_FORWARD_CMD    > $DEVICE ;;
-        s) echo backword; echo $START_BACKWORD_CMD   > $DEVICE ;;
-        a) echo left; echo $START_TURNING_LEFT_CMD   > $DEVICE ;;
-        d) echo right; echo $START_TURNING_RIGHT_CMD > $DEVICE ;;
-        *) echo UNKNOWN COMMAND $cmd ;;
+        w) echolog forward;  dev_send $START_FORWARD_CMD      ;;
+        s) echolog backword; dev_send $START_BACKWORD_CMD     ;;
+        a) echolog left;     dev_send $START_TURNING_LEFT_CMD ;;
+        d) echolog right;    dev_send $START_TURNING_RIGHT_CMD;;
+        *) echolog UNKNOWN COMMAND $cmd ;;
       esac
     }
     cmdold=$cmd;
   }||{
     cmd="";
-    ((EOC_i++<1))&&{
+    ((!((EOC_i++)%10)))&&{
       #echo end of command $cmdold;
+      sleep .33
       case $cmdold in
-        w) echo stop forward ; echo $STOP_FORWARD_CMD   > $DEVICE ;;
-        s) echo stop backword; echo $STOP_BACKWORD_CMD  > $DEVICE ;;
-        a) echo stop left ;echo $STOP_TURNING_LEFT_CMD  > $DEVICE ;;
-        d) echo stop right;echo $STOP_TURNING_RIGHT_CMD > $DEVICE ;;
-        #*) echo UNKNOWN COMMAND $cmd ;;
+        w) echolog stop forward ; dev_send $STOP_FORWARD_CMD      ;;
+        s) echolog stop backword; dev_send $STOP_BACKWORD_CMD     ;;
+        a) echolog stop left    ; dev_send $STOP_TURNING_LEFT_CMD ;;
+        d) echolog stop right   ; dev_send $STOP_TURNING_RIGHT_CMD;;
+        *) echolog stop;;
       esac
       cmdold=""
       }
