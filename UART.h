@@ -2,8 +2,8 @@
 #define MYBRR F_CPU/16/BAUD-1
 #define ADDRESS 0b10101010
 #include <stdlib.h>
-uint8_t _k = 0;
-uint8_t _buffer[4];
+volatile uint8_t _k = 0;
+volatile uint8_t _buffer[4];
 
 
 void initalizeUART(void)
