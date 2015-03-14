@@ -27,10 +27,10 @@ function dev_send(){
 
 function KILLFUNC(){
   CYCLE=0;
+  echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
   echolog "Sig ^C caught"
   echolog "PS: Do not forget to switch the batteries off :)"
   echolog "Bye Bye"
-  echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
   echolog stop; dev_send $STOP_TURNING_RIGHT_CMD;
   exit
 }
@@ -50,7 +50,7 @@ do
         s) echolog backword; dev_send $START_BACKWORD_CMD     ;;
         a) echolog left;     dev_send $START_TURNING_LEFT_CMD ;;
         d) echolog right;    dev_send $START_TURNING_RIGHT_CMD;;
-        *) echolog UNKNOWN COMMAND $cmd ;;
+        *) echolog UNKNOWN COMMAND $cmd stop;dev_send $STOP;;
       esac
     }
     cmdold=$cmd;
@@ -62,7 +62,7 @@ do
         s) echolog stop backword; dev_send $STOP_BACKWORD_CMD     ;;
         a) echolog stop left    ; dev_send $STOP_TURNING_LEFT_CMD ;;
         d) echolog stop right   ; dev_send $STOP_TURNING_RIGHT_CMD;;
-        *) echolog stop;;
+        *) echolog stop;dev_send $STOP;;
       esac
     cmdold=""
     }
